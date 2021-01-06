@@ -46,7 +46,7 @@ exports.getNextUniqueId = (callback) => {
 
   readCounter((err, id) => {
     if (err) {
-      callback(err, null);
+      console.log(err);
     } else {
       id = id + 1;
       writeCounter(id, callback);
