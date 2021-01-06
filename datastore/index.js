@@ -8,14 +8,15 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
+  // create a file in the specified path and write a unique name 'id.txt'
+  // path.join(__dirName + `${data}.txt`
+  // write to this specific file
+  // fs.writeFile(filename, text, callback)
+
   counter.getNextUniqueId((err, id) => {
     if (err) {
       console.log('getNextUniqueId error : ' + err);
     } else {
-      // create a file in the specified path and write a unique name 'id.txt'
-      // path.join(__dirName + `${data}.txt`
-      // write to this specific file
-      // fs.writeFile(filename, text, callback)
 
       var file = path.join(exports.dataDir, `${id}.txt`);
 
@@ -23,21 +24,43 @@ exports.create = (text, callback) => {
         if (err) {
           throw ('error writing todo data');
         } else {
-          callback(null, { 'id': id, 'text': text });
+          callback(null, { id, text });
         }
       });
     }
   });
 
+
   // items[id] = text;
-  // callback(null, { id: id, text: text });
+  // callback(null, { id, text });
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+
+  // return array of todos
+  // serialization
+  // [{"id": "00001", "text": "00001"}]
+
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      throw ('error reading files in readAll');
+    } else {
+      // ["00001.txt" "00002.txt"]
+      // get rid of the extension
+      var filenames = _.map(files, (text) => {
+        var filename = path.basename(text, '.txt');
+        return { id: filename, text: filename };
+      });
+      callback(null, filenames);
+    }
   });
-  callback(null, data);
+
+  // path.basename(files)
+
+  // var data = _.map(items, (text, id) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
