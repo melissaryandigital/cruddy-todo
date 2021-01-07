@@ -55,8 +55,6 @@ exports.readAll = (callback) => {
     }
   });
 
-  // path.basename(files)
-
   // var data = _.map(items, (text, id) => {
   //   return { id, text };
   // });
@@ -64,12 +62,23 @@ exports.readAll = (callback) => {
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+
+  // use readfile based on the message's id
+  var file = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(file, 'utf8', (err, todo) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, {id, text: todo});
+    }
+  });
+
+  // var text = items[id];
+  // if (!text) {
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   callback(null, { id, text });
+  // }
 };
 
 exports.update = (id, text, callback) => {
