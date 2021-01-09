@@ -36,28 +36,49 @@ exports.create = (text, callback) => {
 
 exports.readAll = (callback) => {
 
-  // return array of todos
-  // serialization
-  // [{"id": "00001", "text": "00001"}]
+  // [{ id: '00001', text: todo1text }, { id: '00002', text: todo2text }]
 
-  fs.readdir(exports.dataDir, (err, files) => {
-    if (err) {
-      throw ('error reading files in readAll');
-    } else {
-      // ["00001.txt" "00002.txt"]
-      // get rid of the extension
-      var filenames = _.map(files, (text) => {
-        var filename = path.basename(text, '.txt');
-        return { id: filename, text: filename };
+  return new Promise((resolve, reject) => {
+    fs.readdir(exports.dataDir, (err, files) => {
+      if (err) {
+        reject('error reading files in readAll', err);
+      } else {
+        resolve(files);
+      }
+    });
+  })
+    .then((filesArray) => {
+      var todos = _.map(filesArray, (file) => {
+        return new Promise((resolve, reject) => {
+          fs.readFile(path.join(exports.dataDir, file), 'utf8', (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              var id = path.basename(file, '.txt');
+              var thing = { id: id, text: data };
+              resolve(thing);
+            }
+          });
+        });
       });
-      callback(null, filenames);
-    }
-  });
 
-  // var data = _.map(items, (text, id) => {
-  //   return { id, text };
-  // });
-  // callback(null, data);
+      Promise.all(todos)
+        .then((values) => {
+          callback(null, values);
+        })
+        .catch((err) => {
+          console.log('Promise all error: ' + err);
+        });
+    });
+
+  //   var filenames = _.map(files, (text) => {
+  //     var filename = path.basename(text, '.txt');
+  //     return { id: filename, text: filename };
+  //   });
+  //   callback(null, filenames);
+  // }
+
+  // Promise.all(promises)
 };
 
 exports.readOne = (id, callback) => {
